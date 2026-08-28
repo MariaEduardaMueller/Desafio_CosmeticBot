@@ -5,6 +5,8 @@ Foram testadas as demos presentes no escopo do desafio com o objetivo de avaliar
 - demo_02_fidelidade.py
 - demo_03_geval.py
 - demo_04_pytest.py
+
+
 Além de terem sido feitos testes com o chatbot, conferir logs.pdf para ver resultados obtidos.
 
 
