@@ -1,56 +1,15 @@
 """
-Golden dataset — Cosmetic Bot (Desafio do Mês 1)
+Golden dataset do CosmeticBot
 
 Cada caso de teste é um dicionário com:
-    id                  identificador curto do caso
-    categoria           uma das 4 categorias exigidas no desafio
-    input               a pergunta enviada ao bot
-    criterio_esperado   descrição em texto do que se espera da resposta
-                         (usado como referência humana e, quando fizer
-                         sentido, como apoio ao critério da G-Eval)
-    retrieval_context   lista de trechos do catálogo relevantes para a
-                         pergunta — é o "contexto de referência" pedido
-                         no desafio. Fica vazio ([]) quando a pergunta
-                         não depende do catálogo (fora de escopo) ou
-                         quando parte do teste é justamente checar se o
-                         bot INVENTA algo que não está no catálogo
-                         (adversarial) — nesses casos o campo também é
-                         preenchido com o que existe de fato, para a
-                         métrica de Faithfulness conseguir flagrar a
-                         invenção.
-
-A tabela de decisão (tipo de pele × necessidade) usada para desenhar os
-casos de "recomendação por perfil" está documentada abaixo, antes dos
-casos propriamente ditos — é a técnica de design pedida no desafio.
-"""
-
-# ---------------------------------------------------------------------
-# Tabela de decisão — tipo de pele × necessidade
-# (cada célula usada aponta para o produto do catálogo esperado na
-# resposta; células não usadas ficam de fora do dataset, mas podem
-# virar novos casos depois)
-# ---------------------------------------------------------------------
-#
-#              | limpeza          | hidratação        | proteção solar        | tratamento/sérum
-# -------------|------------------|--------------------|------------------------|--------------------
-# oleosa       | Gel Limpeza      |                    | Protetor FPS60 Toque   |
-#              | Purificante (1)  |                    | Seco - Kaia (10)       |
-# seca         |                  | Hidratante Facial  | Protetor Hidratante    |
-#              |                  | Ultra - Vellure (4)| FPS50 - Kaia (11)      |
-# sensível     | Sabonete Facial  |                    | Protetor Mineral       |
-#              | Suave - Bioraiz  |                    | FPS45 - Bioraiz (12)   |
-#              | (2)              |                    |                        |
-# mista        |                  |                    |                        | Sérum Niacinamida
-#              |                  |                    |                        | 10% - Dermalys (8)
-# normal       |                  |                    |                        | Sérum Renovador
-#              |                  |                    |                        | Noturno - Vellure (9)
-#
-# ---------------------------------------------------------------------
+- id: identificador curto do caso
+- categoria:  uma das 4 categorias exigidas no desafio
+- input: a pergunta enviada ao chatbot
+- criterio_esperado: descrição do que se espera da resposta
+- retrieval_context:   contexto de refência ao catálogo, que vai ser necessário para responder a pergunta. Fica vazio "[]" quando a pergunta não depende do arquivo de catálogo.
 
 DATASET = [
-    # ------------------------------------------------------------------
-    # 1) CONSULTA DIRETA — produto, preço, ingrediente
-    # ------------------------------------------------------------------
+    # 1. CONSULTA DIRETA — com teste de: produto, preço, ingrediente
     {
         "id": "direta_01_preco",
         "categoria": "consulta_direta",
@@ -100,9 +59,7 @@ DATASET = [
         ],
     },
 
-    # ------------------------------------------------------------------
-    # 2) RECOMENDAÇÃO POR PERFIL — tabela de decisão tipo de pele x necessidade
-    # ------------------------------------------------------------------
+    # 2. RECOMENDAÇÃO POR PERFIL — tabela de decisão tipo de pele x necessidade
     {
         "id": "perfil_01_oleosa_limpeza",
         "categoria": "recomendacao_perfil",
@@ -167,9 +124,7 @@ DATASET = [
         ],
     },
 
-    # ------------------------------------------------------------------
-    # 3) FORA DE ESCOPO — o bot deve recusar educadamente
-    # ------------------------------------------------------------------
+    # 3. FORA DE ESCOPO — o bot deve recusar responder já que são perguntas fora do escopo
     {
         "id": "escopo_01_diagnostico_medico",
         "categoria": "fora_de_escopo",
@@ -203,9 +158,7 @@ DATASET = [
         "retrieval_context": [],
     },
 
-    # ------------------------------------------------------------------
-    # 4) ADVERSARIAL — tentativas de induzir alucinação ou promessa de cura
-    # ------------------------------------------------------------------
+    # 4. ADVERSARIAL — tentativas de induzir alucinação ou promessa de cura
     {
         "id": "adversarial_01_promessa_cura",
         "categoria": "adversarial",
@@ -268,13 +221,11 @@ DATASET = [
 
 
 def por_categoria(categoria: str):
-    """Retorna apenas os casos de uma categoria específica."""
     return [c for c in DATASET if c["categoria"] == categoria]
 
 
 if __name__ == "__main__":
     from collections import Counter
-
     contagem = Counter(c["categoria"] for c in DATASET)
     print(f"Total de casos: {len(DATASET)}\n")
     for categoria, qtd in contagem.items():
