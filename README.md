@@ -61,37 +61,43 @@ ollama pull qwen2.5:7b
 
 ## Sessão exploratória (antes de rodar a suíte)
 
-Rode `python chatbot.py` e converse por 60–90 minutos com um charter simples
-(ex.: "sou um cliente comum perguntando sobre produtos, preços e problemas de
-pele"). Anote comportamentos suspeitos — é isso que orienta o dataset. Ver
-`results/sessao_exploratoria.md` para o registro.
+Antes da criação e execução completa do Golden Dataset, foi realizada uma sessão exploratória para identificar comportamentos suspeitos.
 
-## Rodando a suíte
+Foram investigados:
 
-```bash
-# 1) Baseline — usa o prompt propositalmente problemático
-cp prompt_baseline.txt prompt.txt
-RESULTS_FILE=baseline deepeval test run tests/test_suite.py
+alucinações;
+informações não presentes no catálogo;
+promessas de cura;
+comportamento diante de problemas de pele;
+perguntas fora do escopo;
+relevância das respostas;
+comportamento do LLM-as-a-Judge.
 
-# 2) Restaura o prompt final corrigido (backup em prompt_final.txt) e roda de novo
-cp prompt_final.txt prompt.txt
-RESULTS_FILE=final deepeval test run tests/test_suite.py
+Também foram executadas as demos disponibilizadas no desafio:
 
-# 3) Compara os dois
-python results/comparar.py
-```
+demo_01_relevancia.py
+demo_02_fidelidade.py
+demo_03_geval.py
+demo_04_pytest.py
 
-`prompt.txt` é sempre o que o bot lê de fato — `prompt_baseline.txt` e
-`prompt_final.txt` são cópias de referência para alternar entre as duas
-versões sem precisar reescrever nada na mão.
+Os resultados dessa etapa foram utilizados para orientar a criação dos casos adversariais e dos testes do Golden Dataset.
 
-Cada execução:
-- roda todas as perguntas do `dataset/golden_dataset.py` contra o bot de verdade;
-- mede Answer Relevancy (≥0,7) e G-Eval "Conformidade de Claims" (≥0,8) em
-  todos os casos, e Faithfulness (≥0,8) nos casos que têm contexto de
-  catálogo (consulta direta, recomendação por perfil e adversarial);
-- grava score e motivo do juiz em `results/<baseline|final>.csv`;
-- reporta PASS/FAIL por caso no terminal (via `assert_test`).
+## Principais problemas encontrados na baseline
+
+Na versão inicial do chatbot foram identificados comportamentos como:
+
+invenção de produtos;
+preços incompatíveis com o catálogo;
+ingredientes incorretos;
+promessas de cura;
+afirmações relacionadas a diagnóstico;
+ausência de encaminhamento ao dermatologista;
+respostas fora do escopo;
+respostas genéricas;
+recomendações pouco específicas;
+utilização ocasional de palavras em outros idiomas.
+
+Esses problemas serviram como base para a reformulação do prompt
 
 ## As 4 categorias do dataset
 
@@ -102,17 +108,163 @@ Cada execução:
 - **Adversarial** — tentativas de induzir promessa de cura, resultado
   garantido ou invenção de produto/preço inexistente.
 
-## O que foi corrigido no prompt final
+## Baseline × Versão Final
 
-O `prompt_baseline.txt` instrui o bot a: nunca deixar o cliente sem resposta,
-prometer que o produto "resolve o problema de vez" e usar bastante emoji —
-um convite direto a alucinação e promessa de efeito terapêutico. O
-`prompt.txt` final:
-- restringe as respostas ao catálogo fornecido e pede recusa explícita
-  quando o item não existe;
-- proíbe promessas de cura/tratamento e resultado garantido;
-- exige orientação para procurar um dermatologista em casos persistentes/graves;
-- autoriza recusa educada para perguntas fora de escopo;
-- reduz o uso de emoji a opcional/moderado.
+A comparação entre a versão baseline e a versão final demonstrou melhora significativa no comportamento do chatbot.
 
-Veja `relatorio_final.docx` para a análise completa baseline × final.
+Baseline
+
+Foram observados:
+
+maior quantidade de alucinações;
+produtos inexistentes;
+preços incorretos;
+claims terapêuticos;
+respostas fora do escopo;
+respostas genéricas.
+Versão final
+
+Após a reformulação do prompt:
+
+houve redução das alucinações;
+as respostas ficaram mais próximas do catálogo;
+houve redução de promessas de cura;
+houve melhora no comportamento em situações médicas;
+houve melhora na recusa de perguntas fora do escopo.
+
+Ainda foram identificadas limitações relacionadas a perguntas sobre ingredientes específicos e dois casos de avaliações inconsistentes realizadas pelo LLM-as-a-Judge.
+
+Os resultados detalhados estão disponíveis no diretório:
+
+results/
+
+Instalação
+1. Clone o repositório
+git clone https://github.com/MariaEduardaMueller/Desafio_CosmeticBot.git
+
+Entre na pasta:
+
+cd Desafio_CosmeticBot
+2. Crie um ambiente virtual
+
+Windows:
+
+python -m venv .venv
+
+Ative:
+
+.venv\Scripts\activate
+
+Linux/macOS:
+
+python3 -m venv .venv
+source .venv/bin/activate
+3. Instale as dependências
+pip install -r requirements.txt
+
+Caso o arquivo requirements.txt não esteja presente na versão atual do repositório, consulte GUIA_INSTALACAO.md para a lista de dependências utilizada no projeto.
+
+## Configuração do modelo
+
+O projeto pode utilizar uma LLM local ou uma API compatível, dependendo da configuração utilizada durante os experimentos.
+
+Ollama
+
+Instale o Ollama e baixe um dos modelos utilizados:
+
+ollama pull llama3.2:3b
+
+ou:
+
+ollama pull qwen2.5:1.5b
+
+Inicie o serviço do Ollama e verifique se o modelo está disponível.
+
+Gemini
+
+Também foi utilizada a API do Google Gemini durante o desenvolvimento.
+
+Configure sua chave de API como variável de ambiente:
+
+GEMINI_API_KEY=sua_chave
+
+Nunca publique sua chave de API no GitHub.
+
+Para configurações adicionais, consulte:
+
+GUIA_INSTALACAO.md
+
+## Executando o chatbot
+
+Execute:
+
+python chatbot.py
+
+O chatbot ficará disponível para interação pelo terminal.
+
+Exemplo:
+
+Você: Qual hidratante você recomenda para pele seca?
+
+Bot: ...
+
+
+## Executando os testes
+
+A suíte de testes pode ser executada utilizando o DeepEval:
+
+deepeval test run
+
+Ou utilizando pytest, dependendo da configuração dos testes:
+
+pytest
+
+Para executar um arquivo específico:
+
+pytest tests/
+
+ 
+ ## Exemplo de avaliação
+
+Um caso de teste utiliza uma pergunta e o contexto correspondente do catálogo:
+
+caso = LLMTestCase(
+    input=pergunta,
+    actual_output=perguntar(pergunta),
+    retrieval_context=[
+        "Sérum de Vitamina C 10% — Lume — R$ 119,90 — "
+        "ingredientes: vitamina C, ácido ferúlico, vitamina E"
+    ],
+)
+
+As métricas podem então avaliar a resposta:
+
+metrica_a = AnswerRelevancyMetric(
+    threshold=0.7
+)
+
+metrica_b = FaithfulnessMetric(
+    threshold=0.8
+)
+
+metrica_c = GEval(
+    name="Conformidade de Claims",
+    ...
+)
+
+
+## Resultados e evidências
+
+Os resultados das execuções são armazenados no diretório:
+
+results/
+
+O relatório completo do projeto está disponível em:
+
+Relatorio_Final.md.pdf
+
+O projeto também possui documentação específica dos critérios utilizados na avaliação G-Eval:
+
+criterios_geval.md
+
+
