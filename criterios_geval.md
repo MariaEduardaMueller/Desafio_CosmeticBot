@@ -7,7 +7,7 @@
 - **Fidelidade:** 0.6 (antes 0.8)
 - **Recusa de Escopo:** 0.6
 
-> Os thresholds de 0.6 para Fidelidade e Conformidade de Claims foram adotados experimentalmente após a identificação de avaliações inconsistentes do modelo juiz. Os thresholds originais do desafio são 0.7 para Relevância e 0.8 para Faithfulness e Conformidade de Claims.
+> Os thresholds de 0.6 para Fidelidade e Conformidade de Claims foram adotados experimentalmente após a identificação de avaliações inconsistentes do modelo juiz. Os thresholds originais do desafio são 0.7 para Relevância e 0.8 para Faithfulness e Conformidade de Claims. Durante a exploração, identifiquei grande instabilidade no LLM-as-a-Judge e optei por usar 0,6 como threshold para trazer respostas mais coerentes."
 
 ---
 
