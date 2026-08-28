@@ -112,6 +112,13 @@ Esses problemas serviram como base para a reformulação do prompt
 
 A comparação entre a versão baseline e a versão final demonstrou melhora significativa no comportamento do chatbot.
 
+| Métrica | Baseline | Final | Evolução |
+|---|---:|---:|---:|
+| Relevância | 0.6 | 1.0 | +0.4 |
+| Fidelidade | 0.3 | 0.7 | +0.4 |
+| Claims | 0.6 | 0.8 | +0.2 |
+| Casos aprovados | 5/13 | 11/13 | +6/13 |
+
 Baseline
 
 Foram observados:
