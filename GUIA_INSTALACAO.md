@@ -159,7 +159,7 @@ def test_exemplo_direta_preco():
         ]
     )
 ```
-
+Caso utilize o projeto inteiro utilize o comando `pytest tests/test_suite.py -k "[nome do teste]"`
 
 ## 6. Limites das APIs gratuitas
 - Foram utilizados os modelos `llama3.2:3b ` e `qwen2.5:1.5b` para os testes. Por padrão ambos os juiz e chatbot estão configurados para utilizar o modelo `llama3.2:3b`, caso deseje trocar de modelo você deve alterar os arquivos `juiz.py` e `chatbot.py` e informar o modelo ou chave desejada.
